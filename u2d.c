@@ -14,10 +14,11 @@ int main(int argc, char *argv[])
     FILE *fp_in;
     FILE *fp_out;
     char buf[2];
+    int mode = 1;    /* Insert CR */
 
-    printf("U2D.COM a UNIX2DOS clone\n");
-    printf("Written by Dean Jenkins v0.1 29/10;2023\n");
-    printf("u2d <input filename>\n");
+    printf("U2D.COM is a UNIX2DOS clone\n");
+    printf("Written by Dean Jenkins v0.2 04/11/2023\n");
+    printf("U2D <input filename>\n");
 
     if (argc != 2)
     {
@@ -53,8 +54,11 @@ int main(int argc, char *argv[])
         if (buf[0] == 0x1A) /* EOF */
             break;
 
-        if (buf[0] == 0x0A) /* LF */
-            fputc(0x0D, fp_out); /* Inject as CR */
+        if (buf[0] == 0x13) /* CR */
+            mode = 0;       /* File is already in DOS format */
+
+        if (buf[0] == 0x0A && mode == 1) /* LF */
+            fputc(0x0D, fp_out); /* Inject a CR */
 
         fputc(buf[0], fp_out); /* Write to new file */
     }
