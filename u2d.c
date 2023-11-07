@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     int mode = 1;    /* Insert CR */
 
     printf("U2D.COM is a UNIX2DOS clone\n");
-    printf("Written by Dean Jenkins v0.2 04/11/2023\n");
+    printf("Written by Dean Jenkins v0.3 07/11/2023\n");
     printf("U2D <input filename>\n");
 
     if (argc != 2)
@@ -51,10 +51,13 @@ int main(int argc, char *argv[])
 
     while (fgets(buf, 2, fp_in) != NULL)
     {
-        if (buf[0] == 0x1A) /* EOF */
+        if (buf[0] == 0x1A) /* EOF marker padding */
             break;
 
-        if (buf[0] == 0x13) /* CR */
+        if (buf[0] == 0x00) /* NUL marker padding */
+            break;
+
+        if (buf[0] == 0x0D) /* CR */
             mode = 0;       /* File is already in DOS format */
 
         if (buf[0] == 0x0A && mode == 1) /* LF */
