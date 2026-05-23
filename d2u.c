@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* Written by Gemini AI */
 
@@ -14,19 +15,34 @@
 int main(int argc, char *argv[]) {
     FILE *in, *out;
     int c;
+    int del_padding = 0;
+    int arg_idx = 0;
 
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <input_file> <output_file>\n", argv[0]);
+    printf("d2u is a DOS2UNIX clone\n");
+    printf("Written by Dean Jenkins v0.2 23/05/2026\n");
+
+    /* Handle Arguments */
+    if (argc == 3)
+        arg_idx = 1;
+    
+    if (argc == 4 && strcmp(argv[1], "-S") == 0) {
+        printf("Only remove 0x1a padding selected\n");
+        del_padding = 1;
+        arg_idx = 2;
+    }
+
+    if (argc <= 2 || argc > arg_idx + 2) {
+        printf("Usage: d2u [-S] <input filename> <output filename>\n");
         return EXIT_FAILURE;
     }
 
-    in = fopen(argv[1], "rb");
+    in = fopen(argv[arg_idx], "rb");
     if (!in) {
         perror("Error opening input file");
         return EXIT_FAILURE;
     }
 
-    out = fopen(argv[2], "wb");
+    out = fopen(argv[arg_idx + 1], "wb");
     if (!out) {
         perror("Error opening output file");
         fclose(in);
@@ -45,7 +61,7 @@ int main(int argc, char *argv[]) {
          * If the next is \n, we just let the next iteration handle the \n.
          * If it's NOT \n, we preserve the \r (rare in CP/M, but good practice).
          */
-        if (c == '\r') {
+        if (!del_padding && c == '\r') {
             int next = fgetc(in);
             if (next == '\n') {
                 /* Found \r\n, write only the \n */
